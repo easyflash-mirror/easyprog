@@ -96,25 +96,18 @@ void slotsFillEFDir(void)
  */
 uint8_t __fastcall__ selectSlotDialog(void)
 {
-	SelectBoxEntry* pEntries;
+	SelectBoxEntry entries[FLASH_MAX_SLOTS + 1];
     SelectBoxEntry* pEntry;
     uint8_t    nSlot, rv;
 
     slotsFillEFDir();
-    pEntries = malloc((FLASH_MAX_SLOTS + 1) * sizeof(SelectBoxEntry));
-    if (!pEntries)
-    {
-    	screenPrintSimpleDialog(apStrOutOfMemory);
-    	return 0;
-    }
-
     // termination for strings with strlen() == EF_DIR_ENTRY_SIZE
     // and termination for list
-    memset(pEntries, 0, (FLASH_MAX_SLOTS + 1) * sizeof(SelectBoxEntry));
+    memset(entries, 0, (FLASH_MAX_SLOTS + 1) * sizeof(SelectBoxEntry));
 
     for (nSlot = 0; nSlot < g_nSlots; ++nSlot)
     {
-        pEntry = pEntries + nSlot;
+        pEntry = entries + nSlot;
         // take care: target must be at least as large as source
         memcpy(pEntry->label, m_EFDir.slots[nSlot],
                sizeof(m_EFDir.slots[0]));
@@ -123,8 +116,7 @@ uint8_t __fastcall__ selectSlotDialog(void)
             pEntry->label[0] = '-';
     }
 
-    rv = selectBox(pEntries, "a slot");
-    free(pEntries);
+    rv = selectBox(entries, "a slot");
     return rv;
 }
 
@@ -136,24 +128,17 @@ uint8_t __fastcall__ selectSlotDialog(void)
  */
 uint8_t selectKERNALSlotDialog(void)
 {
-    SelectBoxEntry* pEntries;
+    SelectBoxEntry  entries[MAX_KERNALS + 1];
     SelectBoxEntry* pEntry;
     char*           pLabel;
     uint8_t         nSlot, rv;
 
     slotsFillEFDir();
-    pEntries = malloc((MAX_KERNALS + 1) * sizeof(SelectBoxEntry));
-    if (!pEntries)
-    {
-        screenPrintSimpleDialog(apStrOutOfMemory);
-        return 0;
-    }
-
     // termination for strings with strlen() == EF_DIR_ENTRY_SIZE
     // and termination for list
-    memset(pEntries, 0, (FLASH_MAX_SLOTS + 1) * sizeof(SelectBoxEntry));
+    memset(entries, 0, (FLASH_MAX_SLOTS + 1) * sizeof(SelectBoxEntry));
 
-    pEntry = pEntries;
+    pEntry = entries;
     pLabel = m_EFDir.kernals[0];
     for (nSlot = 1; nSlot <= MAX_KERNALS; ++nSlot)
     {
@@ -167,8 +152,7 @@ uint8_t selectKERNALSlotDialog(void)
         pLabel += sizeof(m_EFDir.kernals[0]);
     }
 
-    rv = selectBox(pEntries, "a KERNAL slot");
-    free(pEntries);
+    rv = selectBox(entries, "a KERNAL slot");
     return rv;
 }
 

@@ -416,7 +416,7 @@ ewfError:
 ; Write 256 bytes from BLOCK_BUFFER to the given address. The destination
 ; address must be aligned to 256 bytes.
 ;
-; uint8_t __fastcall__ eapiGlueWriteBlock(uint8_t* pDst);
+; uint16_t __fastcall__ eapiGlueWriteBlock(uint8_t* pDst);
 ;
 ; parameters:
 ;       destination address in AX $8xxx/$9xxx or $Exxx/$Fxxx

@@ -66,7 +66,7 @@ static const char strUp[] = { 95, 0 }; // arrow left
 /** Local data: Put here to reduce code size */
 
 // buffer for directory entries
-static DirEntry* pDirEntries;
+static DirEntry dirEntries[FILEDLG_MAX_ENTRIES];
 
 // number of directory entries in the buffer
 static uint8_t nDirEntries;
@@ -120,12 +120,12 @@ void fileDlgSort(void)
         if (root)
         {
             parent = --root;
-            entry = pDirEntries[root];
+            entry = dirEntries[root];
         }
         else if (--n)
         {
-            entry = pDirEntries[n];
-            pDirEntries[n] = pDirEntries[0];
+            entry = dirEntries[n];
+            dirEntries[n] = dirEntries[0];
             parent = 0;
         }
         else
@@ -133,20 +133,20 @@ void fileDlgSort(void)
 
         while ((child = (parent + 1) << 1) < n)
         {
-            if (fileDlgCompareEntries(pDirEntries + (child - 1), pDirEntries + child))
+            if (fileDlgCompareEntries(dirEntries + (child - 1), dirEntries + child))
                 --child;
 
-            pDirEntries[parent] = pDirEntries[child];
+            dirEntries[parent] = dirEntries[child];
             parent = child;
         }
 
         if (child == n)
         {
             --child;
-            if (fileDlgCompareEntries(pDirEntries + child, &entry))
+            if (fileDlgCompareEntries(dirEntries + child, &entry))
             {
-                pDirEntries[parent] = pDirEntries[child];
-                pDirEntries[child] = entry;
+                dirEntries[parent] = dirEntries[child];
+                dirEntries[child] = entry;
                 continue;
             }
 
@@ -154,9 +154,9 @@ void fileDlgSort(void)
         }
         else
         {
-            if (fileDlgCompareEntries(pDirEntries + parent, &entry))
+            if (fileDlgCompareEntries(dirEntries + parent, &entry))
             {
-                pDirEntries[parent] = entry;
+                dirEntries[parent] = entry;
                 continue;
             }
 
@@ -166,14 +166,14 @@ void fileDlgSort(void)
         while (child != root)
         {
             parent = (child - 1) >> 1;
-            if (fileDlgCompareEntries(pDirEntries + parent, &entry))
+            if (fileDlgCompareEntries(dirEntries + parent, &entry))
                 break;
 
-            pDirEntries[child] = pDirEntries[parent];
+            dirEntries[child] = dirEntries[parent];
             child = parent;
         }
 
-        pDirEntries[child] = entry;
+        dirEntries[child] = entry;
     }
 }
 
@@ -187,7 +187,7 @@ static void fileDlgReadDir(void)
     uint8_t c;
 
     nDirEntries = 0;
-    pEntry = pDirEntries;
+    pEntry = dirEntries;
 
     if (dirOpen(FILEDLG_LFN, g_nDrive))
     {
@@ -275,7 +275,7 @@ static void __fastcall__ fileDlgPrintEntry(uint8_t nLine, uint8_t nEntry)
 {
     DirEntry* pEntry;
 
-    pEntry = pDirEntries + nEntry;
+    pEntry = dirEntries + nEntry;
 
     gotoxy(FILEDLG_X + 1, FILEDLG_Y_ENTRIES + nLine);
 
@@ -341,15 +341,7 @@ uint8_t __fastcall__ fileDlg(const char* pStrType)
 
     fileDlgPrintFrame();
 
-    pDirEntries = malloc(FILEDLG_MAX_ENTRIES * sizeof(DirEntry));
-    if (!pDirEntries)
-    {
-    	screenPrintSimpleDialog(apStrOutOfMemory);
-    	return 0;
-    }
-
     rv = 0;
-
     bReload = 1;
     for (;;)
     {
@@ -422,7 +414,7 @@ uint8_t __fastcall__ fileDlg(const char* pStrType)
             break;
 
         case CH_ENTER:
-            pEntry = pDirEntries + nSelection;
+            pEntry = dirEntries + nSelection;
             if (fileDlgEntryIsDir(pEntry))
             {
                 fileDlgChangeDir(pEntry->name);
@@ -457,6 +449,5 @@ uint8_t __fastcall__ fileDlg(const char* pStrType)
         }
     }
 end:
-    free(pDirEntries);
     return rv;
 }

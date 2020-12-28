@@ -36,14 +36,6 @@ obj += obj/write.o
 obj += obj/usbtest.o
 obj += obj/util.o
 
-ld65_version := $(shell [ `ld65 -V 2>&1 | sed -e 's/\(ld65 V\)\([0-9\.]*\)\( .*\)/\2/g; q'` \< "2.13.9" ] && echo old)
-
-ifeq "$(ld65_version)" "old"
-        ld_config := src/ld.cfg
-else
-        ld_config := src/ld2.cfg
-endif
-
 bin_acme :=
 bin_acme += obj/startup.bin
 bin_acme += obj/sprites.bin
@@ -53,18 +45,17 @@ eapi += eapi-m29w160t-03
 eapi += eapi-mx29640b-12
 eapi += eapi-sst39sf040-10
 
-eapi_dir := ../EasySDK/eapi
-eapi_src := $(addprefix $(eapi_dir)/out/,$(eapi))
+eapi_src := $(addprefix eapi/out/,$(eapi))
 eapi_obj := $(addprefix obj/,$(eapi))
 
 inc      := src
 inc      += eload/src
 inc      += libprint/src
-inc      += ../libs/libef3usb/src
+inc      += libef3usb/src
 
 eload     := eload/eload.lib
 libprint  := libprint/libprint.lib
-libef3usb := ../libs/libef3usb/libef3usb.lib
+libef3usb := libef3usb/libef3usb.lib
 
 INCLUDE  := $(addprefix -I,$(inc))
 
@@ -109,7 +100,7 @@ obj/%.o: src/%.s $(bin_acme) $(eapi_obj) | obj
 always:
 
 $(eapi_obj): always | obj
-	$(MAKE) -C $(eapi_dir)
+	$(MAKE) -C eapi
 	cp $(eapi_src) obj
 
 ###############################################################################
@@ -120,9 +111,8 @@ obj/%.bin: src/%.s | obj
 obj:
 	mkdir -p $@
 
-easyprog: $(obj) $(ld_config) $(eload) $(libprint) $(libef3usb)
-	ld65 -o $@ -m $@.map -C $(ld_config) $(obj) -L /usr/local/lib/cc65/lib \
-		--lib $(eload) --lib $(libprint) --lib $(libef3usb) --lib c64.lib
+easyprog: $(obj) src/ld.cfg $(eload) $(libprint) $(libef3usb)
+	cl65 -o $@ -m $@.map -C src/ld.cfg -t c64 $(obj) $(eload) $(libprint) $(libef3usb)
 	cat $@.map | grep -e "^Name\|^CODE\|^DATA\|^BSS\|^RODATA\|^LOWCODE"
 
 easyprog.prg: easyprog
@@ -155,5 +145,5 @@ clean:
 	rm -rf obj
 	$(MAKE) -C $(dir $(eload)) clean
 	$(MAKE) -C $(dir $(libprint)) clean
-	$(MAKE) -C $(eapi_dir) clean
-
+	$(MAKE) -C $(dir $(libef3usb)) clean
+	$(MAKE) -C eapi clean
