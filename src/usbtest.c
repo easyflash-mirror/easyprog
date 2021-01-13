@@ -33,11 +33,16 @@ void usbTest(void)
 {
     uint8_t i;
     uint8_t ch;
+    uint8_t lines = 0;
 
     for (;;)
     {
-        clrscr();
-        cputs("USB Test (Reset to exit)\r\n");
+        if (lines == 0) {
+            clrscr();
+            cputs("USB Test (Reset to exit)\r\n");
+            lines = 22;
+        }
+        --lines;
         for (i = 16; i; --i)
         {
             ef3usb_receive_data(&ch, 1);
@@ -46,5 +51,6 @@ void usbTest(void)
             cputs(utilStr);
             ef3usb_send_data(&ch, 1);
         }
+        cputs("\r\n");
     }
 }
