@@ -5,10 +5,18 @@
 This is EasyProg, a Commodore 64/128 tool to write data to the EasyFlash and
 EasyFlash 3 cartridges.
 
-The official repository is located at https://gitlab.com/easyflash/easyflash3-core/.
-Look at https://gitlab.com/easyflash/ for other EasyFlash related repositories.
+## Website, Repository and Issue Tracker
 
-Older versions and the history can be found at https://bitbucket.org/skoe/easyflash/.
+EasyFlash website: https://skoe.de/easyflash/
+
+Official repository and issue tracker:
+https://gitlab.com/easyflash/easyprog/
+
+Other EasyFlash related repositories:
+https://gitlab.com/easyflash/
+
+Source repository mirror:
+https://github.com/easyflash-mirror/easyprog/
 
 ## License
 
